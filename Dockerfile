@@ -44,6 +44,9 @@ RUN apt-get update \
     build-essential \
     libpq-dev \
     libwebp-dev \
+    libffi-dev \
+    rustc cargo \
+    libssl-dev \
     gnupg gnupg2 gnupg1 \
     debian-keyring \
     debian-archive-keyring \
@@ -61,6 +64,7 @@ RUN curl -sSL https://raw.githubusercontent.com/python-poetry/poetry/master/inst
 
 # copy project requirement files here to ensure they will be cached.
 WORKDIR $PYSETUP_PATH
+RUN apt-get install --no-install-recommends -y libxml2-dev libxslt-dev zlib1g-dev libjpeg-dev libsasl2-dev libldap2-dev
 COPY ./poetry.lock ./pyproject.toml ./
 
 # install runtime deps - uses $POETRY_VIRTUALENVS_IN_PROJECT internally
@@ -85,6 +89,9 @@ COPY ./poetry.lock ./pyproject.toml $MEALIE_HOME/
 
 # venv already has runtime deps installed we get a quicker install
 WORKDIR $MEALIE_HOME
+RUN apt-get update \
+    && apt-get install --no-install-recommends -y \
+    build-essential
 RUN . $VENV_PATH/bin/activate && poetry install
 WORKDIR /
 
